@@ -80,4 +80,8 @@ class Graph():
 if __name__ == '__main__':
 	g = Graph()
 	g.showGraph()
+	#only run once with these 2 add lines
+	g.addNewRoute("GYM","PVA",200000)
+	g.addNewRoute("LQM","PVA",10000000000)
+	#if run more than once, can cause problems
 	g.shortestRoute("LQM","PVA")
