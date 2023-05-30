@@ -8,6 +8,8 @@ class Graph():
 	def __init__(self) -> None:
 		dfc = pd.read_csv('costos.csv', sep=';',header=None,names=['origen','destino','precio'])
 
+		self.dfc = dfc
+
 		G = nx.DiGraph() 
 
 		G = nx.from_pandas_edgelist(dfc,"origen","destino","precio",create_using=nx.DiGraph)
@@ -57,26 +59,32 @@ class Graph():
 		self.__init__()
 
 	def shortestRoute(self,origin,destination):
-		# Apply Dijkstra's algorithm to find the shortest path
-		G = self.Graph
-		shortest_path = nx.shortest_path(G, source=origin, target=destination, weight='precio')
-		subGraph = G.subgraph(shortest_path)
+		try:
+			# Apply Dijkstra's algorithm to find the shortest path
+			G = self.Graph
+			
+			shortest_path = nx.shortest_path(G, source=origin, target=destination, weight='precio')
 
-		# Draw the graph
-		pos = nx.spring_layout(G)
-		nx.draw(G, pos, with_labels=True, node_color='lightgreen')
+			subGraph = G.subgraph(shortest_path)
 
-		# Highlight the shortest path in red
-		path_edges = [(shortest_path[i], shortest_path[i + 1]) for i in range(len(shortest_path) - 1)]
-		#nx.draw_networkx_edges(G, pos, edgelist=path_edges, edge_color='red')
-		nx.draw_networkx_edge_labels(self.Graph,pos,rotate=False,edge_labels=self.edges)
-		nx.draw(subGraph,pos,with_labels=True,node_color='lightgreen',edge_color='red',edgelist=path_edges)
-		precio = 0
-		for u,v,attrs in subGraph.edges(data=True):
-			if (u,v) in path_edges:
-				precio += attrs['precio']
-		print(f'Total cost of flights is: {precio}\n')
+			# Draw the graph
+			pos = nx.spring_layout(G)
+			nx.draw(G, pos, with_labels=True, node_color='lightgreen')
 
-		# Show the plot
-		plt.show()
+			# Highlight the shortest path in red
+			path_edges = [(shortest_path[i], shortest_path[i + 1]) for i in range(len(shortest_path) - 1)]
+			#nx.draw_networkx_edges(G, pos, edgelist=path_edges, edge_color='red')
+			nx.draw_networkx_edge_labels(self.Graph,pos,rotate=False,edge_labels=self.edges)
+			nx.draw(subGraph,pos,with_labels=True,node_color='lightgreen',edge_color='red',edgelist=path_edges)
+			precio = 0
+			for u,v,attrs in subGraph.edges(data=True):
+				if (u,v) in path_edges:
+					precio += attrs['precio']
+			print(f'Total cost of flights is: {precio}\n')
+
+			# Show the plot
+			plt.show()
+		except nx.NetworkXNoPath:
+			print(f'This is not a valid destination from the airport\n')
+
 

@@ -33,7 +33,22 @@ class Menu():
         self.database.addNewRoute(origin,dest,price)
 
     def mostEconomic(self):
+
+        dests = []
+        def findNeighbors(ori):
+            l = list(self.database.Graph.neighbors(ori))
+            for i in l:
+                dests.append(i)
+                findNeighbors(i)
+            
+        origins = set(self.database.dfc['origen'])
+        print(f'The available origin airports are: \n{origins}\n')
         origin = input("Enter origin airport IATA:\n")
+        if origin not in origins:
+            print("Invalid origin city\n")
+            return
+        findNeighbors(origin)
+        print(f'The available destinations from this airport are: \n{dests}\n')
         dest = input("Enter destination airpot IATA:\n")
         self.database.shortestRoute(origin,dest)
 
