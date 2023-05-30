@@ -3,90 +3,81 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from math import inf
-import heapq
+import csv
+class Graph():
+	def __init__(self) -> None:
+		dfc = pd.read_csv('costos.csv', sep=';',header=None,names=['origen','destino','precio'])
+
+		print(dfc)
+
+		G = nx.DiGraph() 
+
+		G = nx.from_pandas_edgelist(dfc,"origen","destino","precio",create_using=nx.DiGraph)
+
+		self.Graph = G
+
+		self.Graph.edges(data=True)
+		for u, v, attrs in G.edges(data=True):
+			weight_str = attrs['precio'].replace(",","")
+			weight_int = int(weight_str)
+			attrs['precio'] = weight_int
+		self.edges= edge_labels = nx.get_edge_attributes(self.Graph, 'precio')
 
 
-def findShortestPaths(graph, source, n):
+	def showGraph(self):
+		dfc = pd.read_csv('costos.csv', sep=';',header=None,names=['origen','destino','precio'])
 
-	# create a min-heap and push source node having distance 0
-	pq = []
-	heappush(pq, Node(source))
+		print(dfc)
 
-	# set initial distance from the source to `v` as infinity
-	dist = [sys.maxsize] * n
+		G = nx.DiGraph() 
 
-	# distance from the source to itself is zero
-	dist[source] = 0
+		G = nx.from_pandas_edgelist(dfc,"origen","destino","precio",create_using=nx.DiGraph)
 
-	# list to track vertices for which minimum cost is already found
-	done = [False] * n
-	done[source] = True
+		self.Graph = G
 
-	# stores predecessor of a vertex (to a print path)
-	prev = [-1] * n
+		self.Graph.edges(data=True)
+		for u, v, attrs in G.edges(data=True):
+			weight_str = attrs['precio'].replace(",","")
+			weight_int = int(weight_str)
+			attrs['precio'] = weight_int
+		edge_labels = nx.get_edge_attributes(self.Graph, 'precio')
+		pos = nx.spring_layout(self.Graph)
 
-	# run till min-heap is empty
-	while pq:
+		nx.draw_networkx_edge_labels(self.Graph,pos,rotate=False,edge_labels=edge_labels)
 
-		node = heappop(pq)  	# Remove and return the best vertex
-		u = node.vertex 		# get the vertex number
+		nx.draw(self.Graph,pos,with_labels=True,node_color="lightgreen")
+		
+		plt.show()
 
-		# do for each neighbor `v` of `u`
-		for (v, weight) in graph.adjList[u]:
-			if not done[v] and (dist[u] + weight) < dist[v]:		# Relaxation step
-				dist[v] = dist[u] + weight
-				prev[v] = u
-				heappush(pq, Node(v, dist[v]))
+	def addNewRoute(self,origin,destination,price):
+		line = [origin,destination,price]
+		new_data_str = ';'.join(map(str, line))
+		fname = 'costos.csv'
+		with open(fname,mode="a",newline='') as file:
+			writer = csv.writer(file)
+			writer.writerow([new_data_str])
+		self.__init__
 
-		# mark vertex `u` as done so it will not get picked up again
-		done[u] = True
+	def shortestRoute(self,origin,destination):
+		# Apply Dijkstra's algorithm to find the shortest path
+		G = self.Graph
+		shortest_path = nx.shortest_path(G, source=origin, target=destination, weight='precio')
 
-	route = []
-	for i in range(n):
-		if i != source and dist[i] != sys.maxsize:
-			get_route(prev, i, route)
-			print(f'Path ({source} —> {i}): Minimum cost = {dist[i]}, Route = {route}')
-			route.clear() 
+		# Draw the graph
+		pos = nx.spring_layout(G)
+		nx.draw(G, pos, with_labels=True, node_color='lightgreen')
 
+		# Highlight the shortest path in red
+		path_edges = [(shortest_path[i], shortest_path[i + 1]) for i in range(len(shortest_path) - 1)]
+		nx.draw_networkx_edges(G, pos, edgelist=path_edges, edge_color='red')
+		nx.draw_networkx_edge_labels(self.Graph,pos,rotate=False,edge_labels=self.edges)
 
-G_eje = nx.Graph() 
-G_eje.add_node("GIAN")
-G_eje.add_nodes_from([2,3])
-print(G_eje.nodes())
-
-df = pd.read_excel('aeropuertos.xlsx')
-
-df.set_index(["IATA"], inplace=True)
-
-#print(df)
-
-dfc = pd.read_csv('costos.csv', sep=';',header=None,names=['origen','destino','precio'])
-
-print(dfc)
-
-G = nx.DiGraph()
-
-G = nx.from_pandas_edgelist(dfc,"origen","destino","precio",create_using=nx.DiGraph)
-
-plt.show()
-#print(G.edges(data=True))
-
-pos = nx.spring_layout(G)
-
-nx.draw_networkx_labels(G,pos,font_size=7,font_family="sans-serif")
-#plt.show()
-
-
-mat = nx.adjacency_matrix(G).todense()
-
-nx.draw(G,with_labels=True,node_color="lightgreen")
+		# Show the plot
+		plt.show()
 
 
 
-#plt.show()
-print(list(G.neighbors("MDE")))
-
-
-print(mat)
-
-print(findShortestPaths(mat,"MDE",4))
+if __name__ == '__main__':
+	g = Graph()
+	g.showGraph()
+	g.shortestRoute("LQM","PVA")
