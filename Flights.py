@@ -5,7 +5,6 @@ class Flight():
   def __init__(self, origin, destiny):
     self.airline = random.choice(["LATAM", "AVIANCA", "DELTA", "QATAR", "VIVA", "EMIRATES"])
     
-    #For stablish a random flight number, i´m used an array of prefix
     prefix = ["AA", "AK" , "AB" , "AL", "BB","BL" , "BK" , "BT" ,"CC", "CK" , "CL" , "CF" ,"EE", "EF", "EK" ]
     self.flight_number = random.choice(prefix)+str(random.randint(100, 999)) 
     
@@ -28,7 +27,6 @@ class Flight():
       
     self.duration = random.randint(60, 180)
   
-    #The priority is defined with a probabilty, stablish COMMERCIAL with the mayority (60%)
     priorities_opt = [{"N":"EMERGENCY", "VALUE": 1}, {"N":"MILITARY", "VALUE": 2} , {"N":"COMMERCIAL", "VALUE": 3}]
     wg = [15, 15 , 60]
     pr_list = random.choices(priorities_opt, weights= wg, k = 1)

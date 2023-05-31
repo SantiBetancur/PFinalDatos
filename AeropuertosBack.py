@@ -29,8 +29,6 @@ class Graph():
 	def showGraph(self):
 		dfc = pd.read_csv('costos.csv', sep=';',header=None,names=['origen','destino','precio'])
 
-		#print(dfc)
-
 		G = nx.DiGraph() 
 
 		G = nx.from_pandas_edgelist(dfc,"origen","destino","precio",create_using=nx.DiGraph)
@@ -62,20 +60,14 @@ class Graph():
 
 	def shortestRoute(self,origin,destination):
 		try:
-			# Apply Dijkstra's algorithm to find the shortest path
 			G = self.Graph
 			
 			shortest_path = nx.shortest_path(G, source=origin, target=destination, weight='precio')
 
 			subGraph = G.subgraph(shortest_path)
-
-			# Draw the graph
 			pos = nx.spring_layout(G)
 			nx.draw(G, pos, with_labels=True, node_color='lightgreen')
-
-			# Highlight the shortest path in red
 			path_edges = [(shortest_path[i], shortest_path[i + 1]) for i in range(len(shortest_path) - 1)]
-			#nx.draw_networkx_edges(G, pos, edgelist=path_edges, edge_color='red')
 			nx.draw_networkx_edge_labels(self.Graph,pos,rotate=False,edge_labels=self.edges)
 			nx.draw(subGraph,pos,with_labels=True,node_color='lightgreen',edge_color='red',edgelist=path_edges)
 			precio = 0
@@ -92,20 +84,19 @@ class Graph():
 						a = self.files_generator(u,v)
 						b = a[0]
 						ticketB = b.split(";")
+						c = attrs['precio']
 						print(f'**********************Plane Ticket**********************')
-						print(f'Origin: {ticketB[0]}\nDestination: {ticketB[1]}\nAirline: {ticketB[2]}\nPlane ID: {ticketB[3]}\nTime of departure: {ticketB[4]}\n')
+						print(f'Origin: {ticketB[0]}\nDestination: {ticketB[1]}\nAirline: {ticketB[2]}\nPlane ID: {ticketB[3]}\nTime of departure: {ticketB[4]}\nPrice: {c}\n')
 
 				print()
-			# Show the plot
 		except nx.NetworkXNoPath:
 			print(f'This is not a valid destination from the airport\n')
 
 
 
 	def files_generator(self,ori:str,dest:str)->list:
-		n = random.randint(3, 15)
+		n = random.randint(8, 15)
 
-		#This method reads the created file and extracts the takeoff data time
 		def fl_times(rute):
 			times = []
 			with  open(rute, mode="r") as file_csv:
@@ -124,8 +115,7 @@ class Graph():
 		def list_of_nearest_fl():
 			t = fl_times(rute)
 			aux= []
-			
-			print(t)
+
 			with  open(rute, mode="r") as file_csv:
 				reader = csv.reader(file_csv)
 				
@@ -136,13 +126,10 @@ class Graph():
 
 				return aux
 
-
-		#Here is created the file
 		if n > 0:
 			
 			rute = f'{ori}.csv'
 			f_data = []
-			#Columns: Origin, Destiny, Airline, Flight_number, "Date_start"
 			file_data = []
 			for i in range(n):
 				f = Flight(ori, dest)
