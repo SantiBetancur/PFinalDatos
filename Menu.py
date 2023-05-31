@@ -12,7 +12,7 @@ class Menu():
 
         print("********Welcome to AirportDB!********")
         while True:
-            sleep(2)
+            sleep(1)
             opt = showMenu()
             if opt == 1:
                 self.database.showGraph()
