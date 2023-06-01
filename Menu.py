@@ -1,6 +1,7 @@
 from AeropuertosBack import Graph
 from time import sleep
 from Dataframe import ExcelDataframe
+import textwrap
 
 class Menu():
     def __init__(self) -> None:
@@ -29,7 +30,17 @@ class Menu():
                 print("Invalid option, please try again\n")
 
     def addNewRoute(self):
-        print(f'Available airports are: \n{self.df.getAirports()}\n')
+        print(f'All airports: : \n')
+              
+        airports = self.df.getAirports()
+        num_columns = 5
+        excelIATA = self.df.getIATA()
+        for i, airport in enumerate(airports):
+            wrapped_airport = textwrap.fill(airport, width=50)  # Ajusta el ancho de cada elemento a 20 caracteres
+            print(f"{excelIATA[i]} | {wrapped_airport:<30}", end="" if (i + 1) % num_columns != 0 else "\n")
+        print("\n")
+
+
         origin = input("Enter origin airport city:\n")
         if origin not in self.df.getAirports():
             print("Invalid origin city\n")
@@ -46,22 +57,38 @@ class Menu():
         def findNeighbors(ori):
             l = list(self.database.Graph.neighbors(ori))
             for i in l:
-                if self.df.searchIATA(i) not in dests:
-                    dests.append(self.df.searchIATA(i))
+                if self.df.searchAirportName(i) not in dests:
+                    dests.append(f'{self.df.searchAirportIATA(i)} | {self.df.searchAirportName(i)}')
                     findNeighbors(i)
                 
-        print(f'Available airports are: \n{self.df.getAirports()}\n')
+        print(f'Available airports are: \n')
+              
+        airports = self.df.getAirports()
+        num_columns = 5
+        excelIATA = self.df.getIATA()
+     
+        graphIATA = list(self.database.dfc["origen"])
+
+        for i, airport in enumerate(airports):
+            if excelIATA[i] in graphIATA:
+                wrapped_airport = textwrap.fill(airport, width=50)  # Ajusta el ancho de cada elemento a 20 caracteres
+                print(f"{wrapped_airport:<30}", end="" if (i + 1) % num_columns != 0 else "\n")
+        print("\n")      
+
         origin = input("Enter origin airport city:\n")
         if origin not in self.df.getAirports():
             print("Invalid origin city\n")
             return
-        oriIata= self.df.searchCity(origin)
+        oriIata= self.df.searchCity(origin) 
         print(oriIata)
         findNeighbors(oriIata)
-        print(f'The available destinations from this airport are: \n{dests}\n')
-        dest = input("Enter destination airpot city:\n")
-        destIata = self.df.searchCity(dest)
-        self.database.shortestRoute(oriIata,destIata)
+        print(f'The available destinations from this airport are: \n')
+        if dests:
+            for i in dests:
+                print(i, end=", ")
+        dest = input("\nEnter destination airpot IATA:\n")
+
+        self.database.shortestRoute(oriIata,dest)
 
 
                 
