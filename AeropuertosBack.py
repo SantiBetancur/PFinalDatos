@@ -5,9 +5,12 @@ import csv
 from Flights import Flight
 import datetime
 import random
+from Dataframe import ExcelDataframe
 
 class Graph():
 	def __init__(self) -> None:
+		self.df = ExcelDataframe()
+
 		dfc = pd.read_csv('costos.csv', sep=';',header=None,names=['origen','destino','precio'])
 
 		self.dfc = dfc
@@ -65,29 +68,38 @@ class Graph():
 			shortest_path = nx.shortest_path(G, source=origin, target=destination, weight='precio')
 
 			subGraph = G.subgraph(shortest_path)
+
 			pos = nx.spring_layout(G)
+
 			nx.draw(G, pos, with_labels=True, node_color='lightgreen')
+
 			path_edges = [(shortest_path[i], shortest_path[i + 1]) for i in range(len(shortest_path) - 1)]
+
 			nx.draw_networkx_edge_labels(self.Graph,pos,rotate=False,edge_labels=self.edges)
+
 			nx.draw(subGraph,pos,with_labels=True,node_color='lightgreen',edge_color='red',edgelist=path_edges)
 			precio = 0
+
 			for u,v,attrs in subGraph.edges(data=True):
 				if (u,v) in path_edges:
 					precio += attrs['precio']
 			print(f'Total cost of flights is: {precio}\n')
-			plt.title("AIPORTS")
+
 			plt.show()
 			opt = int(input("Do you want to see tickets to next flight?\n1->Yes\n2->No\n"))
 			if opt == 1:
 				for u,v,attrs in subGraph.edges(data=True):
 					if (u,v) in path_edges:
 						a = self.files_generator(u,v)
-						b = a[0]
-						ticketB = b.split(";")
-						c = attrs['precio']
-						print(f'**********************Plane Ticket**********************')
-						print(f'Origin: {ticketB[0]}\nDestination: {ticketB[1]}\nAirline: {ticketB[2]}\nPlane ID: {ticketB[3]}\nTime of departure: {ticketB[4]}\nPrice: {c}\n')
-
+						if a:
+							b = a[0]
+							ticketB = b.split(";")
+							c = attrs['precio']
+							print(f'**********************Plane Ticket**********************')
+							print(f'Origin: {ticketB[0]}\nDestination: {ticketB[1]}\nAirline: {ticketB[2]}\nPlane ID: {ticketB[3]}\nTime of departure: {ticketB[4]}\nPrice: {c}\n')
+						else:
+							print(f'No available tickets from {u} to {v} at this time')
+							break
 				print()
 		except nx.NetworkXNoPath:
 			print(f'This is not a valid destination from the airport\n')
@@ -95,7 +107,7 @@ class Graph():
 
 
 	def files_generator(self,ori:str,dest:str)->list:
-		n = random.randint(8, 15)
+		n = random.randint(3, 15)
 
 		def fl_times(rute):
 			times = []

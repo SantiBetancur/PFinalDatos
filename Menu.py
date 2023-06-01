@@ -1,8 +1,10 @@
 from AeropuertosBack import Graph
 from time import sleep
+from Dataframe import ExcelDataframe
 
 class Menu():
     def __init__(self) -> None:
+        self.df = ExcelDataframe()
         self.database = Graph()
 
     def mainMenu(self):
@@ -27,10 +29,16 @@ class Menu():
                 print("Invalid option, please try again\n")
 
     def addNewRoute(self):
-        origin = input("Enter origin airport IATA:\n")
-        dest = input("Enter destination airpot IATA:\n")
+        print(f'Available airports are: \n{self.df.getAirports()}\n')
+        origin = input("Enter origin airport city:\n")
+        if origin not in self.df.getAirports():
+            print("Invalid origin city\n")
+            return
+        oriIata= self.df.searchCity(origin)
+        dest = input("Enter destination airpot city:\n")
+        destIata = self.df.searchCity(dest)
         price = int(input("Enter price of new route:\n"))
-        self.database.addNewRoute(origin,dest,price)
+        self.database.addNewRoute(oriIata,destIata,price)
 
     def mostEconomic(self):
 
@@ -38,19 +46,22 @@ class Menu():
         def findNeighbors(ori):
             l = list(self.database.Graph.neighbors(ori))
             for i in l:
-                dests.append(i)
-                findNeighbors(i)
-            
-        origins = set(self.database.dfc['origen'])
-        print(f'The available origin airports are: \n{origins}\n')
-        origin = input("Enter origin airport IATA:\n")
-        if origin not in origins:
+                if self.df.searchIATA(i) not in dests:
+                    dests.append(self.df.searchIATA(i))
+                    findNeighbors(i)
+                
+        print(f'Available airports are: \n{self.df.getAirports()}\n')
+        origin = input("Enter origin airport city:\n")
+        if origin not in self.df.getAirports():
             print("Invalid origin city\n")
             return
-        findNeighbors(origin)
+        oriIata= self.df.searchCity(origin)
+        print(oriIata)
+        findNeighbors(oriIata)
         print(f'The available destinations from this airport are: \n{dests}\n')
-        dest = input("Enter destination airpot IATA:\n")
-        self.database.shortestRoute(origin,dest)
+        dest = input("Enter destination airpot city:\n")
+        destIata = self.df.searchCity(dest)
+        self.database.shortestRoute(oriIata,destIata)
 
 
                 
